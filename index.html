@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ПЛАМЕННЫЙ — анимационный фильм по роману Павла Тужилкина</title>
+<meta name="description" content="«Пламенный» — полнометражный 3D-анимационный фильм о мальчике, который упал с колокольни и остался жив. История Прохора Мошнина, ставшего Серафимом Саровским.">
+<meta property="og:title" content="ПЛАМЕННЫЙ — анимационный фильм">
+<meta property="og:description" content="Он упал с колокольни — но не разбился.">
+<meta property="og:image" content="fon_16x9/01_hero_polet_nad_kurskom.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#12100E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prata&family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --coal:#12100E;
+  --coal-2:#1A1614;
+  --levkas:#EDE3CE;
+  --gold:#C9922B;
+  --gold-lt:#E3B45C;
+  --ember:#E0731F;
+  --blood:#800808;
+  --sin:#1E3A5F;
+  --zelen:#4A6B3A;
+
+  --ink:#E7DECD;
+  --ink-dim:rgba(231,222,205,.64);
+  --ink-faint:rgba(231,222,205,.38);
+  --rule:rgba(201,146,43,.22);
+
+  --display:'Prata',Georgia,serif;
+  --body:'Spectral',Georgia,serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+
+  --pad:clamp(18px,5vw,72px);
+  --measure:64ch;
+}
+
+*{box-sizing:border-box; min-width:0;}
+h1,h2,h3,h4,p,li,span,b{overflow-wrap:break-word;}
+html{scroll-behavior:smooth; -webkit-text-size-adjust:100%;}
+body{
+  margin:0; background:var(--coal); color:var(--ink);
+  font-family:var(--body); font-weight:300;
+  font-size:clamp(16px,1.05vw,18px); line-height:1.75;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+body.locked{overflow:hidden;}
+img{display:block; max-width:100%;}
+a{color:inherit;}
+::selection{background:var(--gold); color:var(--coal);}
+
+/* ---------- горящая нить ---------- */
+.wick{position:fixed; left:26px; top:0; bottom:0; width:1px; z-index:60;
+  background:rgba(201,146,43,.13); pointer-events:none;}
+.wick-burn{position:absolute; top:0; left:-1px; width:3px; height:0;
+  background:linear-gradient(180deg,rgba(201,146,43,0),rgba(201,146,43,.35) 30%,var(--gold) 78%,var(--gold-lt));}
+.wick-flame{position:absolute; left:-4px; width:9px; height:9px; border-radius:50%;
+  background:radial-gradient(circle,#FFE9A8 0%,var(--gold-lt) 38%,rgba(224,115,31,.55) 62%,transparent 74%);
+  box-shadow:0 0 14px 4px rgba(224,115,31,.45),0 0 34px 10px rgba(201,146,43,.2);
+  transform:translateY(-50%); opacity:0;}
+@media (max-width:1000px){ .wick{display:none;} }
+
+/* ---------- навигация ---------- */
+.nav{position:fixed; top:0; left:0; right:0; z-index:90; padding:14px var(--pad);
+  background:linear-gradient(180deg,rgba(18,16,14,.88),rgba(18,16,14,0));
+  transition:background .4s, padding .4s, border-color .4s;
+  border-bottom:1px solid transparent;}
+.nav.solid{background:rgba(18,16,14,.95); border-bottom-color:var(--rule); padding-top:10px; padding-bottom:10px;}
+.nav-inner{display:flex; align-items:center; justify-content:center;
+  gap:clamp(16px,3vw,42px); max-width:1240px; margin:0 auto;}
+.nav-side{display:flex; gap:clamp(14px,2.2vw,30px); flex:1 1 0; min-width:0;}
+.nav-side.left{justify-content:flex-end;}
+.nav-side.right{justify-content:flex-start;}
+.nav a.lnk{font-family:var(--mono); font-size:11px; font-weight:300; letter-spacing:.16em;
+  text-transform:uppercase; text-decoration:none; color:var(--ink-dim); white-space:nowrap; transition:color .25s;}
+.nav a.lnk:hover,.nav a.lnk:focus-visible{color:var(--gold-lt);}
+.nav-logo{height:36px; width:auto; opacity:.92; flex:none;}
+.burger{display:none; position:absolute; right:var(--pad); top:50%; transform:translateY(-50%);
+  width:38px; height:30px; background:none; border:0; cursor:pointer; padding:0;}
+.burger i{display:block; height:1px; background:var(--levkas); margin:7px 0; transition:.35s;}
+body.menu .burger i:nth-child(1){transform:translateY(8px) rotate(45deg);}
+body.menu .burger i:nth-child(2){opacity:0;}
+body.menu .burger i:nth-child(3){transform:translateY(-8px) rotate(-45deg);}
+
+.menu-overlay{position:fixed; inset:0; z-index:85; background:rgba(18,16,14,.985);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  opacity:0; pointer-events:none; transition:opacity .45s;}
+body.menu .menu-overlay{opacity:1; pointer-events:auto;}
+.menu-overlay a{font-family:var(--display); font-size:clamp(24px,7vw,34px);
+  color:var(--levkas); text-decoration:none; padding:10px 4px;}
+
+/* ---------- общее ---------- */
+section{position:relative;}
+.wrap{max-width:1240px; margin:0 auto; padding-left:var(--pad); padding-right:var(--pad);}
+.pad-y{padding-top:clamp(66px,10vw,150px); padding-bottom:clamp(66px,10vw,150px);}
+.narrow{max-width:var(--measure);}
+
+.eyebrow{font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.24em;
+  text-transform:uppercase; color:var(--gold); display:flex; align-items:center; gap:14px; margin:0 0 24px;}
+.eyebrow::before{content:''; width:clamp(20px,4vw,34px); height:1px;
+  background:linear-gradient(90deg,var(--blood),var(--gold)); flex:none;}
+
+h2.title{font-family:var(--display); font-weight:400; font-size:clamp(27px,4.2vw,56px);
+  line-height:1.14; margin:0 0 30px; color:var(--levkas);}
+h3{font-family:var(--display); font-weight:400; font-size:clamp(19px,2vw,26px);
+  line-height:1.25; margin:0 0 12px; color:var(--levkas);}
+p{margin:0 0 22px;}
+p.lead{font-size:clamp(18px,1.5vw,24px); line-height:1.62; color:var(--levkas);}
+strong{font-weight:600; color:var(--levkas);}
+
+.bg-fixed{background-size:cover; background-position:center center; background-repeat:no-repeat; background-attachment:fixed;}
+.bg-cover{background-size:cover; background-position:center center; background-repeat:no-repeat;}
+.scrim::after{content:''; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(180deg,rgba(18,16,14,.74),rgba(18,16,14,.82) 45%,rgba(18,16,14,.95));}
+.scrim > *{position:relative; z-index:2;}
+@media (hover:none),(max-width:1000px){ .bg-fixed{background-attachment:scroll;} }
+
+/* ============ ХИРО ============ */
+.hero{min-height:100svh; display:flex; flex-direction:column; justify-content:flex-end;
+  position:relative; overflow:hidden;}
+.hero-img{position:absolute; inset:0; background-image:url('fon_16x9/01_hero_polet_nad_kurskom.png');
+  background-size:cover; background-position:center; transform:scale(1.06);
+  animation:drift 28s ease-in-out infinite alternate;}
+@keyframes drift{from{transform:scale(1.06)} to{transform:scale(1.13) translate3d(-1.2%,-1.6%,0)}}
+.hero-veil{position:absolute; inset:0;
+  background:linear-gradient(90deg,rgba(18,16,14,.80) 0%,rgba(18,16,14,.42) 45%,rgba(18,16,14,.10) 100%),
+             linear-gradient(0deg,rgba(18,16,14,.95) 0%,rgba(18,16,14,.28) 42%,rgba(18,16,14,.34) 100%);}
+.hero-inner{position:relative; z-index:3; padding-bottom:clamp(46px,7vw,96px);}
+.hero-presents{font-family:var(--mono); font-size:11px; letter-spacing:.28em;
+  text-transform:uppercase; color:var(--ink-dim); margin:0 0 22px;}
+/* Ширина слова ПЛАМЕННЫЙ в Prata ~7.2em. Чтобы оно никогда не вылезало
+   за край, кегль ограничен 12vw: 12vw x 7.2 = 86vw, поля забирают ещё 10vw.
+   Трогать это число, только если меняете шрифт или само слово. */
+.hero-title{font-family:var(--display); font-weight:400; font-size:clamp(34px,12vw,168px);
+  line-height:.9; letter-spacing:.03em; margin:0; color:var(--levkas);
+  white-space:nowrap; max-width:100%;
+  text-shadow:0 0 60px rgba(0,0,0,.6), 0 2px 2px rgba(0,0,0,.45);}
+.hero-title .glow{background:linear-gradient(180deg,#F6E6BE 0%,var(--gold-lt) 46%,var(--gold) 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;}
+.hero-src{font-style:italic; font-size:clamp(14px,1.15vw,18px); color:var(--ink-dim); margin:18px 0 30px;}
+.hero-slogan{font-family:var(--display); font-size:clamp(19px,2.05vw,30px); line-height:1.4;
+  color:var(--levkas); max-width:20ch; margin:0 0 34px; border-left:2px solid var(--gold); padding-left:20px;}
+.hero-meta{display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+  border-top:1px solid var(--rule); padding-top:18px; max-width:1040px;}
+.hero-meta div{padding:0 clamp(12px,2vw,28px); border-right:1px solid var(--rule); min-width:0;}
+.hero-meta div:first-child{padding-left:0;}
+.hero-meta div:last-child{border-right:0; padding-right:0;}
+.hero-meta b{display:block; font-family:var(--display);
+  font-size:clamp(14px,1.55vw,24px); line-height:1.2;
+  font-weight:400; color:var(--gold-lt); overflow-wrap:break-word;}
+.hero-meta span{display:block; margin-top:6px; font-family:var(--mono);
+  font-size:clamp(8px,.7vw,10.5px); letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-faint); overflow-wrap:break-word;}
+.scroll-hint{position:absolute; right:var(--pad); bottom:clamp(40px,7vw,92px); z-index:4;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--ink-faint); writing-mode:vertical-rl; display:flex; align-items:center; gap:12px;}
+.scroll-hint::after{content:''; width:1px; height:56px; background:linear-gradient(180deg,var(--gold),transparent);}
+
+/* ============ ТЕГЛАЙН ============ */
+/* ---- ТЕГЛАЙН ----
+   ТРИ РУЧКИ ДЛЯ РУЧНОЙ ПОДГОНКИ (менять только их):
+   --tg-figure  смещение кадра по горизонтали. Меньше % = картинка едет
+                влево, старец уходит от текста. Больше = вправо.
+   --tg-veil    где начинается глухая темнота под текстом, в % ширины
+                экрана. Меньше = текст лежит на более тёмном фоне.
+   --tg-col     ширина текстовой колонки. Считается от ширины экрана,
+                не от сетки: 32vw это примерно треть монитора.           */
+.teglain{--tg-figure:50%; --tg-veil:58%; --tg-col:clamp(340px,32vw,660px);
+  min-height:92svh; display:flex; align-items:center; overflow:hidden;}
+/* Этот блок единственный выходит за общую сетку в 1240px: иначе текст
+   жмётся в узкую колонку у центра, а справа простаивает полэкрана. */
+.teglain .wrap{max-width:1760px;}
+.teglain-bg{position:absolute; inset:0; background-position:var(--tg-figure) center;}
+.teglain-veil{position:absolute; inset:0;
+  background:linear-gradient(90deg,
+    rgba(18,16,14,0) 0%,
+    rgba(18,16,14,.06) calc(var(--tg-veil) - 18%),
+    rgba(18,16,14,.62) calc(var(--tg-veil) - 4%),
+    rgba(18,16,14,.93) calc(var(--tg-veil) + 10%),
+    rgba(18,16,14,.985) calc(var(--tg-veil) + 22%),
+    rgba(18,16,14,.99) 100%);}
+.teglain .wrap{width:100%; position:relative; z-index:3;}
+.teglain-col{margin-left:auto; width:var(--tg-col);}
+.teglain h2{font-family:var(--display); font-size:clamp(28px,4.3vw,60px); line-height:1.12;
+  margin:0 0 24px; color:var(--levkas);}
+.teglain .gold{color:var(--gold-lt);}
+
+/* ============ ЛОГЛАЙН ============ */
+.loglain{padding:clamp(80px,12vw,180px) 0;}
+.loglain-plate{background:rgba(18,16,14,.8); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+  padding:clamp(26px,4.5vw,56px) clamp(20px,4vw,54px); max-width:940px;}
+.loglain-plate p{margin:0; font-size:clamp(16.5px,1.5vw,23px); line-height:1.68;}
+.loglain-plate p:first-of-type{color:var(--levkas);}
+
+/* ============ СИНОПСИС ============ */
+.dropcap::first-letter{float:left; font-family:var(--display); font-size:4.4em; line-height:.84;
+  padding:6px 14px 0 0; color:var(--gold);}
+.pull{font-family:var(--display); font-size:clamp(21px,2.9vw,42px); line-height:1.28;
+  color:var(--gold-lt); margin:46px 0; padding-left:22px;
+  border-left:2px solid; border-image:linear-gradient(180deg,var(--gold),var(--blood)) 1;}
+
+/* ============ АКЦЕНТ ============ */
+.accent{min-height:92svh; display:flex; align-items:center;}
+.accent .wrap{width:100%;}
+.accent-box{max-width:640px;}
+
+/* ============ ЭПИЗОДЫ ============ */
+.episodes{list-style:none; margin:0; padding:0; max-width:900px;}
+.ep{position:relative; padding:0 0 32px clamp(52px,6vw,74px); border-left:1px solid var(--rule); margin-left:6px;}
+.ep:last-child{border-left-color:transparent; padding-bottom:0;}
+.ep-dot{position:absolute; left:-5px; top:8px; width:9px; height:9px; border-radius:50%;
+  background:var(--coal); border:1px solid var(--gold); transition:box-shadow .7s, background .7s;}
+.ep.lit .ep-dot{background:var(--gold-lt); box-shadow:0 0 12px 3px rgba(224,115,31,.5),0 0 26px 8px rgba(201,146,43,.18);}
+.ep.blood.lit .ep-dot{background:#C43A2A; box-shadow:0 0 12px 3px rgba(128,8,8,.75),0 0 30px 10px rgba(128,8,8,.3);}
+.ep-num{position:absolute; left:18px; top:1px; font-family:var(--mono); font-size:12.5px;
+  font-weight:500; color:var(--gold); letter-spacing:.05em;}
+.ep h4{font-family:var(--display); font-weight:400; font-size:clamp(17px,1.7vw,23px);
+  margin:0 0 8px; color:var(--levkas);}
+.ep p{margin:0; color:var(--ink-dim); font-size:15px; line-height:1.68;}
+
+/* ============ ГЕРОИ ============ */
+.heroes-banner{height:clamp(230px,38vw,520px); position:relative; overflow:hidden;
+  display:flex; align-items:flex-end;}
+.heroes-banner .cap{position:relative; z-index:2; padding:0 var(--pad) clamp(22px,4vw,46px); max-width:680px;}
+
+.hcar{position:relative;}
+.hstage{overflow:hidden;}
+.htrack{display:flex; will-change:transform;
+  transition:transform .85s cubic-bezier(.22,.75,.22,1);}
+.hslide{flex:0 0 100%; min-width:0; display:grid;
+  grid-template-columns:minmax(0,clamp(280px,32vw,420px)) 1fr;
+  gap:clamp(24px,4vw,66px); align-items:center;}
+.hpic{position:relative; aspect-ratio:3/4; overflow:hidden;
+  border:1px solid rgba(201,146,43,.18); background:var(--coal-2);}
+.hpic img{width:100%; height:100%; object-fit:cover; object-position:center 22%;}
+.hpic::after{content:''; position:absolute; inset:0; pointer-events:none;
+  box-shadow:inset 0 -70px 90px -50px rgba(18,16,14,.9);}
+.hinfo{padding-right:clamp(0px,2vw,40px);}
+.hrole{font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold); display:flex; align-items:center; gap:12px; margin:0 0 16px;}
+.hrole::before{content:''; width:26px; height:1px;
+  background:linear-gradient(90deg,var(--blood),var(--gold)); flex:none;}
+.hinfo h3{font-size:clamp(26px,3.4vw,46px); margin:0 0 18px;}
+.hinfo p{margin:0; font-size:clamp(15px,1.25vw,18px); line-height:1.72; color:var(--ink-dim);
+  max-width:46ch;}
+
+.hbar{display:flex; align-items:center; gap:clamp(14px,2vw,26px);
+  margin-top:clamp(24px,3vw,42px); padding-top:20px; border-top:1px solid var(--rule);}
+.hnum{font-family:var(--mono); font-size:11px; letter-spacing:.14em; color:var(--ink-faint); flex:none;}
+.hnum b{color:var(--gold-lt); font-weight:500;}
+.harrow{width:42px; height:42px; flex:none; border:1px solid var(--rule); background:transparent;
+  color:var(--gold-lt); cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:.3s;}
+.harrow:hover{border-color:var(--gold); background:rgba(201,146,43,.1);}
+.harrow svg{width:13px; height:13px; fill:currentColor;}
+.hprog{flex:1 1 auto; height:1px; background:rgba(201,146,43,.16); position:relative; overflow:hidden;}
+.hprog i{position:absolute; left:0; top:0; bottom:0; width:0;
+  background:linear-gradient(90deg,var(--gold),var(--gold-lt));}
+.hbar-manual .hint{font-family:var(--mono); font-size:9.5px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--ink-faint); margin-left:auto; white-space:nowrap;}
+
+.hthumbs{display:flex; gap:8px; margin-top:18px; overflow-x:auto;
+  scrollbar-width:none; -ms-overflow-style:none; padding-bottom:4px;}
+.hthumbs::-webkit-scrollbar{display:none;}
+.hthumb{flex:0 0 clamp(48px,5vw,68px); aspect-ratio:1; padding:0; cursor:pointer;
+  border:1px solid transparent; background:none; opacity:.38; transition:.35s; overflow:hidden;}
+.hthumb img{width:100%; height:100%; object-fit:cover; object-position:center 20%;}
+.hthumb.on{opacity:1; border-color:var(--gold);}
+.hthumb:hover{opacity:.8;}
+
+/* ============ МИР ============ */
+.world{display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(12px,1.5vw,24px);}
+.wcard{border:1px solid var(--rule); background:var(--coal-2); overflow:hidden;
+  display:flex; flex-direction:column;}
+.wimg-hold{overflow:hidden;}
+.wimg{aspect-ratio:4/3; background-size:cover; background-position:center;
+  transition:transform 1.1s cubic-bezier(.2,.7,.2,1);}
+.wcard:hover .wimg{transform:scale(1.05);}
+.wtxt{padding:clamp(20px,2.2vw,32px);}
+.loc{font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:10px;}
+.wtxt h3{font-size:21px;}
+.wtxt p{margin:0; font-size:14.5px; line-height:1.7; color:var(--ink-dim);}
+
+/* ============ ВИЗУАЛ ============ */
+.triptych{position:relative; margin:clamp(28px,4vw,54px) 0 0;}
+.triptych-labels{position:absolute; inset:auto 0 0 0; display:grid; grid-template-columns:repeat(3,1fr);
+  background:linear-gradient(0deg,rgba(18,16,14,.95),rgba(18,16,14,0));
+  padding:clamp(26px,5vw,62px) 0 clamp(12px,2vw,22px);}
+.triptych-labels div{text-align:center; padding:0 6px;}
+.triptych-labels b{display:block; font-family:var(--display); font-weight:400;
+  font-size:clamp(13px,1.5vw,21px); color:var(--gold-lt); margin-bottom:3px;}
+.triptych-labels span{font-family:var(--mono); font-size:8.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-faint);}
+.swatches{display:flex; flex-wrap:wrap; margin-top:clamp(28px,4vw,48px); border:1px solid var(--rule);}
+.sw{flex:1 1 130px;}
+.sw i{display:block; height:70px;}
+.sw span{display:block; padding:11px 13px; font-family:var(--mono); font-size:10px;
+  letter-spacing:.1em; color:var(--ink-dim); border-top:1px solid var(--rule);}
+.sw span b{display:block; color:var(--levkas); font-weight:500; margin-bottom:3px;
+  letter-spacing:.14em; text-transform:uppercase; font-size:9px;}
+
+/* ============ РЕФЕРЕНСЫ ============ */
+.refs{display:grid; grid-template-columns:repeat(4,1fr); gap:clamp(14px,1.8vw,28px);}
+.ref{display:flex; flex-direction:column;}
+/* Рамка под киноплакат. Стандарт постера — 2:3.
+   Если ваши файлы другой пропорции, поменяйте одно число в aspect-ratio. */
+.ref-img{aspect-ratio:2/3; overflow:hidden; border:1px solid var(--rule);
+  margin-bottom:18px; background:var(--coal-2); position:relative;}
+.ref-img img{width:100%; height:100%; object-fit:cover; object-position:center;
+  transition:transform 1s cubic-bezier(.2,.7,.2,1);}
+.ref-img::after{content:''; position:absolute; inset:0; pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(18,16,14,.5), inset 0 -60px 70px -50px rgba(18,16,14,.85);}
+.ref:hover .ref-img img{transform:scale(1.06);}
+.ref span{font-family:var(--mono); font-size:9.5px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--gold); display:block; margin-bottom:8px;}
+.ref b{display:block; font-family:var(--display); font-weight:400; font-size:20px;
+  color:var(--levkas); margin-bottom:9px;}
+.ref p{margin:0; font-size:14px; line-height:1.66; color:var(--ink-dim);}
+
+/* ============ КОМУ НУЖЕН ============ */
+.four{display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
+  background:var(--rule); border:1px solid var(--rule);}
+.four > div{background:rgba(18,16,14,.9); padding:clamp(24px,3vw,44px);}
+.four h3{font-size:22px;}
+.four p{margin:0; font-size:15px; line-height:1.72; color:var(--ink-dim);}
+
+/* ============ ПОТЕНЦИАЛ ============ */
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(20px,2.6vw,42px);}
+.grid3 .item{border-top:1px solid var(--rule); padding-top:20px;}
+.grid3 .item h4{font-family:var(--display); font-weight:400; font-size:20px;
+  margin:0 0 10px; color:var(--levkas);}
+.grid3 .item p{margin:0; font-size:14.5px; line-height:1.7; color:var(--ink-dim);}
+
+/* ============ СТРАТЕГИЯ ПРОИЗВОДСТВА ============ */
+.block-label{font-family:var(--mono); font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--ink-faint); display:flex; align-items:center; gap:14px;
+  margin:clamp(44px,5.5vw,74px) 0 22px;}
+.block-label::after{content:''; flex:1; height:1px; background:var(--rule);}
+
+.stages{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); margin-top:clamp(28px,3.5vw,50px);}
+.stage{background:rgba(18,16,14,.9); padding:clamp(26px,3vw,46px); position:relative;}
+.stage-num{position:absolute; top:clamp(18px,2vw,30px); right:clamp(18px,2vw,32px);
+  font-family:var(--display); font-size:clamp(44px,5.5vw,86px); line-height:1;
+  color:rgba(201,146,43,.16);}
+.stage-when{font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--gold); margin:0 0 12px;}
+.stage h3{font-size:clamp(20px,2.2vw,29px); margin-bottom:22px; max-width:15ch;}
+.stage dl{margin:0;}
+.stage dt{font-family:var(--mono); font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--ink-faint); margin-bottom:7px;}
+.stage dd{margin:0 0 20px; font-size:15px; line-height:1.72; color:var(--ink-dim);}
+.stage dd:last-child{margin-bottom:0;}
+
+/* ============ СЛОВА СОЗДАТЕЛЕЙ ============ */
+.creators{margin-top:clamp(30px,4vw,56px);}
+.creator{display:grid; grid-template-columns:minmax(0,clamp(280px,30vw,400px)) 1fr;
+  gap:clamp(26px,4vw,64px); align-items:start;
+  padding:clamp(34px,4.5vw,66px) 0; border-top:1px solid var(--rule);}
+.creator:first-child{border-top:0; padding-top:0;}
+/* Чётные развороты зеркалим: фото уходит вправо, и лента перестаёт
+   выглядеть как таблица. */
+.creator.flip{grid-template-columns:1fr minmax(0,clamp(280px,30vw,400px));}
+.creator.flip .cpic{order:2;}
+.creator.flip .cinfo{order:1;}
+
+/* Фото прилипает к верху, пока рядом прокручивается длинный монолог. */
+.cpic{position:sticky; top:96px; aspect-ratio:3/4; overflow:hidden;
+  border:1px solid rgba(201,146,43,.18); background:var(--coal-2);}
+.cpic img{width:100%; height:100%; object-fit:cover; object-position:center 20%;}
+.cpic::after{content:''; position:absolute; inset:0; pointer-events:none;
+  box-shadow:inset 0 -60px 80px -55px rgba(18,16,14,.85);}
+.cwho{font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--gold); display:flex; align-items:center; gap:12px; margin:0 0 14px;}
+.cwho::before{content:''; width:24px; height:1px;
+  background:linear-gradient(90deg,var(--blood),var(--gold)); flex:none;}
+.cinfo h3{font-size:clamp(23px,2.7vw,36px); margin:0 0 18px;}
+.cinfo p{font-size:clamp(14.5px,1.05vw,16.5px); line-height:1.78; color:var(--ink-dim);
+  margin:0 0 15px; max-width:64ch;}
+.cinfo p:last-child{margin-bottom:0;}
+.cinfo .credo{color:var(--gold-lt); font-family:var(--display);
+  font-size:clamp(16px,1.4vw,21px); line-height:1.5;
+  padding-left:18px; border-left:2px solid var(--gold); margin:22px 0;}
+
+/* ============ CTA ============ */
+.cta{min-height:94svh; display:flex; align-items:center;}
+.cta .wrap{width:100%;}
+.cta h2{font-family:var(--display); font-size:clamp(30px,5.2vw,74px); line-height:1.1;
+  color:var(--levkas); margin:0 0 26px; max-width:16ch;}
+.stats{display:flex; flex-wrap:wrap; margin:34px 0 36px;}
+.stats div{padding-right:clamp(20px,3vw,36px); margin-right:clamp(20px,3vw,36px);
+  border-right:1px solid var(--rule); margin-bottom:14px;}
+.stats div:last-child{border-right:0;}
+.stats b{display:block; font-family:var(--display); font-size:clamp(23px,3.3vw,44px);
+  color:var(--gold-lt); font-weight:400;}
+.stats span{font-family:var(--mono); font-size:9.5px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--ink-faint);}
+.btns{display:flex; flex-wrap:wrap; gap:12px;}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  text-decoration:none; padding:16px 28px; border:1px solid var(--gold);
+  color:var(--coal); background:var(--gold); transition:.3s;}
+.btn:hover{background:var(--gold-lt); border-color:var(--gold-lt);}
+.btn.ghost{background:transparent; color:var(--gold-lt);}
+.btn.ghost:hover{background:rgba(201,146,43,.12); color:var(--levkas);}
+
+footer{border-top:1px solid var(--rule); padding:clamp(40px,6vw,76px) 0 100px; background:var(--coal);}
+.foot{display:flex; flex-wrap:wrap; gap:32px; align-items:flex-end; justify-content:space-between;}
+.foot h3{font-size:clamp(20px,2.4vw,30px); margin-bottom:6px;}
+.foot .note{color:var(--ink-dim); font-size:14.5px; margin:0 0 16px;}
+.foot small{font-family:var(--mono); font-size:13px; letter-spacing:.08em;
+  text-transform:none; color:var(--ink-dim); display:block; line-height:2.15;}
+.foot small em{font-style:normal; color:var(--ink-faint); font-size:11px;
+  letter-spacing:.14em; text-transform:uppercase; margin-left:10px;}
+.foot-right small{font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-faint); line-height:2.1;}
+.foot a{color:var(--ink-dim); text-decoration:none;}
+.foot a:hover{color:var(--gold-lt);}
+.foot-right{text-align:right;}
+.foot-logo{height:44px; opacity:.75; margin-left:auto;}
+
+/* ============ ПЛЕЕР ============ */
+.player{position:fixed; left:0; right:0; bottom:0; z-index:80; display:flex; align-items:center;
+  gap:16px; padding:10px clamp(14px,3vw,34px) 10px clamp(14px,4vw,60px);
+  padding-bottom:calc(10px + env(safe-area-inset-bottom));
+  background:rgba(18,16,14,.94); border-top:1px solid var(--rule); backdrop-filter:blur(8px);
+  transform:translateY(105%); transition:transform .7s cubic-bezier(.2,.7,.2,1);}
+.player.up{transform:translateY(0);}
+.pbtn{flex:none; width:40px; height:40px; border-radius:50%; border:1px solid var(--gold);
+  background:transparent; color:var(--gold-lt); cursor:pointer; display:flex;
+  align-items:center; justify-content:center; transition:.3s;}
+.pbtn:hover{background:var(--gold); color:var(--coal);}
+.pbtn svg{width:13px; height:13px; fill:currentColor;}
+.ptitle{flex:none; min-width:0;}
+.ptitle b{display:block; font-family:var(--mono); font-size:9.5px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--gold); margin-bottom:2px;}
+.ptitle span{display:block; font-size:13px; color:var(--ink-dim); white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; max-width:34vw;}
+.pseek{flex:1 1 auto; display:flex; align-items:center; gap:11px; min-width:70px;}
+.ptime{font-family:var(--mono); font-size:10px; color:var(--ink-faint); flex:none;}
+.pvol{display:flex; align-items:center; gap:9px; flex:none;}
+.pvol svg{width:15px; height:15px; fill:var(--ink-faint);}
+input[type=range]{-webkit-appearance:none; appearance:none; background:transparent;
+  cursor:pointer; height:18px; margin:0;}
+input[type=range]::-webkit-slider-runnable-track{height:2px; background:rgba(201,146,43,.25);}
+input[type=range]::-moz-range-track{height:2px; background:rgba(201,146,43,.25);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:11px; height:11px;
+  border-radius:50%; background:var(--gold-lt); margin-top:-4.5px; box-shadow:0 0 10px rgba(224,115,31,.55);}
+input[type=range]::-moz-range-thumb{width:11px; height:11px; border:0; border-radius:50%;
+  background:var(--gold-lt); box-shadow:0 0 10px rgba(224,115,31,.55);}
+#seek{flex:1 1 auto; min-width:50px;}
+#vol{width:80px;}
+
+.sound-cue{position:fixed; right:clamp(14px,3vw,34px);
+  bottom:calc(78px + env(safe-area-inset-bottom)); z-index:81;
+  display:flex; align-items:center; gap:11px; cursor:pointer;
+  background:rgba(18,16,14,.88); border:1px solid var(--rule); padding:11px 16px;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-dim); transition:.4s; backdrop-filter:blur(6px);}
+.sound-cue:hover{border-color:var(--gold); color:var(--gold-lt);}
+.sound-cue.hide{opacity:0; pointer-events:none; transform:translateY(8px);}
+.sound-cue i{width:7px; height:7px; border-radius:50%; background:var(--ember);
+  animation:pulse 2.4s infinite; flex:none;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(224,115,31,.55)}70%{box-shadow:0 0 0 12px rgba(224,115,31,0)}100%{box-shadow:0 0 0 0 rgba(224,115,31,0)}}
+
+.rv{opacity:0; transform:translateY(24px);
+  transition:opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1);}
+.rv.in{opacity:1; transform:none;}
+:focus-visible{outline:2px solid var(--gold-lt); outline-offset:3px;}
+
+/* ============ ПЛАНШЕТ ============ */
+@media (max-width:1100px){
+  .refs{grid-template-columns:repeat(4,1fr); gap:14px;}
+  .world{grid-template-columns:repeat(2,1fr);}
+  .grid3{grid-template-columns:repeat(2,1fr);}
+  .hslide{grid-template-columns:minmax(0,300px) 1fr; gap:30px;}
+  .creator{grid-template-columns:minmax(0,270px) 1fr; gap:32px;}
+  .creator.flip{grid-template-columns:1fr minmax(0,270px);}
+  .hinfo h3{font-size:30px;}
+  /* Ниже 1100 колонка теглайна становится слишком узкой для крупного
+     шрифта, и слова начинают рваться. Блок раскладывается вертикально
+     уже здесь: сначала кадр, под ним текст на всю ширину. */
+  .teglain{min-height:auto; display:block;}
+  .teglain-bg{position:relative; inset:auto; height:56svh; background-position:50% 16%;}
+  .teglain-veil{height:56svh; bottom:auto;
+    background:linear-gradient(0deg,var(--coal) 1%,rgba(18,16,14,.2) 48%,rgba(18,16,14,.3) 100%);}
+  .teglain-col{width:100%; margin:0; max-width:660px;}
+  .teglain .wrap{margin-top:-44px; padding-top:0;}
+}
+
+/* ============ СМАРТФОН ============ */
+@media (max-width:820px){
+  .nav-side{display:none;}
+  .nav-inner{justify-content:flex-start;}
+  .burger{display:block;}
+  .nav-logo{height:30px;}
+
+  .hero{min-height:92svh;}
+  .hero-veil{background:linear-gradient(0deg,rgba(18,16,14,.97) 0%,rgba(18,16,14,.34) 52%,rgba(18,16,14,.5) 100%);}
+  .hero-slogan{max-width:100%; font-size:19px;}
+  .hero-meta{grid-template-columns:repeat(2,minmax(0,1fr)); row-gap:16px; max-width:100%;}
+  .hero-meta div{padding:0 14px;}
+  .hero-meta div:nth-child(2n){border-right:0; padding-right:0;}
+  .hero-meta div:nth-child(2n+1){padding-left:0;}
+  .hero-meta b{font-size:16px;}
+  .hero-meta span{font-size:8.5px;}
+  .scroll-hint{display:none;}
+
+  .teglain{min-height:auto; display:block;}
+  .teglain-bg{position:relative; inset:auto; height:58svh; background-position:50% 18%;}
+  .teglain-veil{height:58svh; bottom:auto;
+    background:linear-gradient(0deg,var(--coal) 1%,rgba(18,16,14,.2) 48%,rgba(18,16,14,.3) 100%);}
+  .teglain-col{width:100%; margin:0;}
+  .teglain .wrap{margin-top:-46px; padding-top:0;}
+
+  .loglain-plate{max-width:100%;}
+  .dropcap::first-letter{font-size:3.4em; padding-right:10px;}
+  .pull{font-size:21px; margin:34px 0; padding-left:16px;}
+
+  .accent{min-height:auto;}
+  .accent-box{max-width:100%;}
+
+  .ep{padding-left:46px;}
+  .ep-num{left:16px; font-size:11.5px;}
+  .ep p{font-size:14.5px;}
+
+  .stages{grid-template-columns:1fr;}
+  .stage h3{max-width:100%;}
+  .creator, .creator.flip{grid-template-columns:1fr; gap:20px;
+    padding:clamp(26px,6vw,40px) 0;}
+  .creator.flip .cpic{order:0;}
+  .creator.flip .cinfo{order:0;}
+  .cpic{position:static; aspect-ratio:4/5; max-height:52svh;}
+  .cinfo h3{font-size:23px;}
+  .cinfo p{font-size:14.5px; line-height:1.7;}
+  .hslide{grid-template-columns:1fr; gap:20px;}
+  .hpic{aspect-ratio:4/5; max-height:56svh;}
+  .hinfo{padding-right:0;}
+  .hinfo h3{font-size:26px; margin-bottom:12px;}
+  .hinfo p{font-size:15px;}
+  .hrole{font-size:9px;}
+  .hbar{margin-top:20px; padding-top:16px; gap:12px;}
+  .harrow{width:38px; height:38px;}
+  .hthumb{flex:0 0 44px;}
+
+  .world{grid-template-columns:1fr; gap:10px;}
+  .refs{grid-template-columns:repeat(2,1fr); gap:16px 12px;}
+  .ref span{font-size:8.5px; letter-spacing:.14em;}
+  .ref b{font-size:16px; margin-bottom:6px;}
+  .ref p{font-size:12.5px; line-height:1.55;}
+  .ref-img{margin-bottom:12px;}
+  .four{grid-template-columns:1fr;}
+  .grid3{grid-template-columns:1fr; gap:22px;}
+
+  .triptych-labels{padding-top:16px;
+    background:linear-gradient(0deg,rgba(18,16,14,.97),rgba(18,16,14,.5) 60%,rgba(18,16,14,0));}
+  .triptych-labels b{font-size:11px;}
+  .triptych-labels span{display:none;}
+  .sw{flex:1 1 50%;}
+  .sw i{height:52px;}
+
+  .cta{min-height:auto;}
+  .stats div{padding-right:16px; margin-right:16px;}
+  .btn{width:100%; padding:17px 20px;}
+  .foot{flex-direction:column; align-items:flex-start; gap:26px;}
+  .foot-right{text-align:left;}
+  .foot-logo{margin-left:0;}
+
+  .ptitle span{max-width:38vw;}
+  .pseek{display:none;}
+  .sound-cue{left:14px; right:14px; justify-content:center;}
+}
+
+@media (max-width:420px){
+  .hpic{aspect-ratio:1/1;}
+  .hinfo h3{font-size:23px;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important; transition-duration:.01ms !important;}
+  html{scroll-behavior:auto;}
+  .rv{opacity:1; transform:none;}
+  .player{transform:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="wick" aria-hidden="true">
+  <div class="wick-burn" id="wickBurn"></div>
+  <div class="wick-flame" id="wickFlame"></div>
+</div>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-side left">
+      <a class="lnk" href="#synopsis">Синопсис</a>
+      <a class="lnk" href="#episodes">Эпизоды</a>
+      <a class="lnk" href="#heroes">Герои</a>
+    </div>
+    <a href="#top" aria-label="Наверх"><img class="nav-logo" src="https://kod-chempiona.ru/images/black-cobra-logo.png" alt="Black Cobra Production"></a>
+    <div class="nav-side right">
+      <a class="lnk" href="#world">Мир</a>
+      <a class="lnk" href="#visual">Визуал</a>
+      <a class="lnk" href="#invest">Инвесторам</a>
+    </div>
+  </div>
+  <button class="burger" id="burger" type="button" aria-label="Меню"><i></i><i></i><i></i></button>
+</nav>
+
+<div class="menu-overlay" id="menuOverlay">
+  <a href="#synopsis">Синопсис</a>
+  <a href="#episodes">Эпизоды</a>
+  <a href="#heroes">Герои</a>
+  <a href="#world">Мир</a>
+  <a href="#visual">Визуал</a>
+  <a href="#invest">Инвесторам</a>
+</div>
+
+<!-- ХИРО -->
+<header class="hero" id="top">
+  <div class="hero-img"></div>
+  <div class="hero-veil"></div>
+  <div class="wrap hero-inner">
+    <p class="hero-presents">Black&nbsp;Cobra представляет</p>
+    <h1 class="hero-title"><span class="glow">ПЛАМЕННЫЙ</span></h1>
+    <p class="hero-src">По одноимённому роману Павла Тужилкина</p>
+    <p class="hero-slogan">Он упал с колокольни&nbsp;— и не разбился.</p>
+    <div class="hero-meta">
+      <div><b>90&nbsp;минут</b><span>хронометраж</span></div>
+      <div><b>3D&nbsp;CG</b><span>полнометражная анимация</span></div>
+      <div><b>6+</b><span>семейный просмотр</span></div>
+      <div><b>Роман предположение</b><span>историческая драма</span></div>
+    </div>
+  </div>
+  <div class="scroll-hint">Листайте вниз</div>
+</header>
+
+<!-- ТЕГЛАЙН -->
+<section class="teglain" id="teglain">
+  <div class="teglain-bg bg-cover" style="background-image:url('fon_16x9/02_teglain_starec_so_svechoy.png');"></div>
+  <div class="teglain-veil"></div>
+  <div class="wrap pad-y">
+    <div class="teglain-col rv">
+      <p class="eyebrow">Теглайн</p>
+      <h2>Огонь, который <span class="gold">не жжёт,<br>а греет</span></h2>
+      <p>«Серафим» на древнееврейском значит «пламенный». Имя дали монаху в тридцать два года, по монастырскому обычаю, почти наугад. Оно оказалось точным описанием следующих сорока семи лет.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ЛОГЛАЙН -->
+<section class="loglain bg-fixed scrim" style="background-image:url('fon_16x9/03_loglain_padenie_s_kolokolni.png');">
+  <div class="wrap">
+    <div class="loglain-plate rv">
+      <p class="eyebrow">Логлайн</p>
+      <p>Курск, 1761 год. Семилетний сын купца срывается с лесов строящейся колокольни — и встаёт невредимым.</p>
+      <p style="margin-top:16px;color:var(--ink-dim)">Дальше семьдесят восемь лет: лавка, где он отвешивает крупу и думает совсем не о ней; пеший переход в Киев; изба в саровском лесу; топор разбойников; тысяча ночей на камне; шестнадцать лет молчания. И очередь из тысяч людей у двери, которую в конце концов он открыл.</p>
+    </div>
+  </div>
+</section>
+
+<!-- СИНОПСИС -->
+<section class="bg-fixed scrim" id="synopsis" style="background-image:url('fon_16x9/04_sinopsis_doroga.png');">
+  <div class="wrap pad-y">
+    <div class="narrow">
+      <p class="eyebrow rv">Синопсис</p>
+      <p class="lead rv" style="margin-bottom:34px">Человек, который всю жизнь уходил от людей, но оказался нужен им больше всех остальных.</p>
+
+      <p class="dropcap rv">Прохор Мошнин растёт в Курске, в доме, где пахнет крупой из лавки и воском из красного угла. Отец умер, когда мальчику не было семи. Мать, Агафья, достраивает за мужа каменный храм и таскает сына с собой на леса. Оттуда он и падает — с верхнего яруса, на битый кирпич. И поднимается. Городской юродивый Николка говорит матери: раз уберегли, значит, для чего-то приготовлен. Жди знамения.</p>
+
+      <p class="rv">Знамение приходит трижды. В десять лет, когда Прохор догорает в горячке и его подносят к иконе, случайно занесённой в дом крестным ходом от дождя. В семнадцать, когда он понимает про себя простую вещь: торговать он не сможет никогда. И в двадцать три, когда киевский затворник Досифей, впервые его увидев, называет по имени, которого не мог знать, и произносит одно слово — Саров.</p>
+
+      <p class="rv">Он уходит. Год послушания, потом второй, потом восьмой. Постриг. Новое имя — Серафим. Служба, свечи, тяжёлое золото облачений. И однажды посреди литургии — свет, после которого всё земное перестаёт весить хоть что-нибудь. Дар оказывается неподъёмным: он начинает видеть, что случится с людьми, и слышать то, о чём они молчат. С этим невозможно жить среди людей.</p>
+
+      <p class="pull rv">Шестнадцать лет в избе на берегу Саровки. Кормит медведя с руки. И война — но с медведем, с самим собой.</p>
+
+      <p class="rv">Однажды в лес приходят трое мужиков с топором: решили, что у монаха водятся деньги от богомольцев. Он не защищается — кладёт свой топор на землю и складывает руки на груди. Его находят к вечеру, еле живого. Он выкарабкается и останется согбенным до конца жизни. А потом добьётся, чтобы разбойников отпустили.</p>
+
+      <p class="rv">Дальше он уходит ещё дальше. Тысячу ночей стоит на камне в чаще. Замолкает — на годы. Запирается в келье и не отворяет даже приехавшему епископу.</p>
+
+      <p class="rv" style="color:var(--levkas)">А в 1815 году дверь открывается.</p>
+
+      <p class="rv">И к ней выстраивается очередь. Крестьяне, дворяне, купцы, генеральши, мальчишка-послушник, парализованный юноша, которого вносят на руках. Однажды ночью — двое офицеров на тройке, и один из них оказывается императором. Каждому вошедшему согбенный старик говорит разное, но встречает всех одинаково, словами:</p>
+
+      <p class="pull rv" style="margin-top:8px">«Радость моя»</p>
+    </div>
+  </div>
+</section>
+
+<!-- ПОЧЕМУ ЭТО КИНО -->
+<section class="accent bg-fixed" style="background-image:linear-gradient(90deg,rgba(18,16,14,.94) 0%,rgba(18,16,14,.62) 48%,rgba(18,16,14,.12) 100%),url('fon_16x9/08_scena_svet_v_hrame.png');">
+  <div class="wrap pad-y">
+    <div class="accent-box rv">
+      <p class="eyebrow">Почему это кино</p>
+      <h2 class="title">Житие обычно пересказывают как список чудес</h2>
+      <p>Мы рассказываем историю выбора, который человек делает заново каждые десять лет. И каждый раз — против себя.</p>
+      <p>Мальчик, которому снится, что он летает. Юноша за прилавком, мысленно уплывающий с Колумбом. Монах, удирающий от собственного дара. Старик, который наконец понимает, что дар был вообще не для него.</p>
+      <p>Финал здесь устроен красиво и очень по-киношному: герой всю дорогу уходит — в монастырь, в лес, на камень, в молчание, в запертую келью, — и в самой дальней точке своего бегства оборачивается и отпирает дверь.</p>
+      <p style="color:var(--gold-lt)">Ради этого разговора и создаётся анимационный фильм.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ЭПИЗОДЫ -->
+<section id="episodes" class="bg-fixed scrim" style="background-image:url('fon_16x9/09_scena_kamen_nochnoe_bdenie.png');">
+  <div class="wrap pad-y">
+    <p class="eyebrow rv">Поэпизодный план</p>
+    <h2 class="title rv" style="max-width:18ch">Двадцать сцен, из которых собран фильм</h2>
+    <ol class="episodes">
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">01</span><h4>Сон о полёте</h4><p>Курск, ночь. Мальчик разбегается по лугу, шагает пошире — и летит над крышами. Просыпается с ощущением, что тело всё ещё ничего не весит.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">02</span><h4>Колокольня</h4><p>Мать берёт Прохора на стройку. Верхний ярус, гул, запах смолы. Он встаёт на оконную раму, раскидывает руки — и выпадает в проём. Мать сползает вниз на четвереньках. За храмом стоит живой мальчик и боится, что его отругают.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">03</span><h4>Скамейка под грушей</h4><p>Николка Блаженный и Прохор. Мир глазами семилетнего: святые, мученики, Царствие Небесное — «светлое-светлое, ярче солнышка». Первая смена изобразительного регистра: рассказы юродивого показаны как ожившая иконная доска.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">04</span><h4>Кораблики</h4><p>Весна, ручьи, промокшие сапоги. Горячка. Мальчик тонет в огненной спирали. В дом заносят икону, пережидая ливень. Его подносят приложиться — спираль гаснет, и вместо неё зелёный луг и белая фигура вдалеке.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">05</span><h4>Лавка</h4><p>Семнадцать лет. Прохор отсыпает крупу в мешочки, а видит паруса Колумба. Мать смотрит на него и понимает: купца не будет.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">06</span><h4>Чужой дом</h4><p>Библиотека Первышевых. Фотинья требует звать её «мадмуазель ФотИ», бранит Россию, хвалит заморские духи. Он спорит с ней о Ломоносове и не может отвести глаз. Её отец говорит без обиняков: не твоего полёта птица.</p></li>
+      <li class="ep blood"><span class="ep-dot"></span><span class="ep-num">07</span><h4>Соборование</h4><p>Отец Пётр берёт юношу с собой к умирающему купцу. Тот выгоняет родных и исповедуется при мальчике. Первый по-настоящему страшный эпизод фильма, и в нём нет ни одного чудовища.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">08</span><h4>Дорога в Киев</h4><p>Пеший переход через пол-России. Лавра, пещеры, мощи. Затворник Досифей называет Прохора по имени и произносит слово, вокруг которого построен весь фильм: Саров.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">09</span><h4>Прощание</h4><p>Мать надевает сыну на шею медный крест. Она отпускает его, зная, что видит в последний раз. Обоз уходит на север, где холмы, тёмный лес и низкие избы с бычьими пузырями вместо стёкол.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">10</span><h4>Имя</h4><p>Саровская пустынь. Годы послушания, свёрнутые в один монтажный проход: дрова, псалтирь, тесто, снег, тесто, снег. Постриг. Настоятель произносит новое имя — Серафим. Пламенный.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">11</span><h4>Свет</h4><p>Великий четверг. Литургия. Посреди возгласа храм заливает светом, и по воздуху, не касаясь пола, проходит Христос. Два часа Серафим стоит неподвижно. Кульминация первой половины фильма — без единого слова.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">12</span><h4>Лес</h4><p>Изба на Саровке. Четыре сезона одним эпизодом. Медведь приходит за мёдом и остаётся. Лосиха берёт хлеб мягкими губами прямо с ладони. А по ночам накатывает память: белые курские сады, тёплые руки матери, смех Фотиньи, запах чужих духов через тридцать лет и восемьсот вёрст.</p></li>
+      <li class="ep blood"><span class="ep-dot"></span><span class="ep-num">13</span><h4>Топор</h4><p>Трое крестьян приходят за деньгами, которых нет. Серафим опускает свой топор и складывает руки крестом. Сцена решена звуком и белым экраном, без единой капли крови. Он выживет согбенным. И потребует, чтобы разбойников отпустили: «Они не ведали, что творили».</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">14</span><h4>Камень</h4><p>Тысяча ночей на гранитном валуне. Здесь фильм позволяет себе самое большое — видения будущего: горящие храмы, расстрелянный царь, кости, вынутые из гроба и увезённые в мешке неизвестно куда. А следом леса на разрушенных стенах, золото на маковках и люди, возвращающиеся в церкви.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">15</span><h4>Молчание</h4><p>Он замолкает. Годы без единого слова. Приходящих встречает поклоном до земли — и они уходят ни с чем. Тишина, которая держится на одной музыке и стоит на своём.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">16</span><h4>Затвор</h4><p>Запертая дверь. Даже епископ уезжает ни с чем. Обоз с кремлёвскими сокровищами прячут в саровских пещерах; за окном идёт война, которую он видел на камне двенадцатью годами раньше.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">17</span><h4>«Радость моя»</h4><p>Дверь открывается. Первые вошедшие плачут, сами не понимая почему. Слух расходится по России. Монастырская площадь забита так, что не пройти.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">18</span><h4>Ноги</h4><p>Юношу Мотовилова вносят на руках. Старик берёт его за руки, поднимает — и отпускает. Тот идёт вокруг сосны, спотыкаясь и плача. Толпа опускается на колени.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">19</span><h4>Снег</h4><p>Зимний лес, двое сидят на поваленном дереве, и снег не тает у них на плечах. Старик объясняет молодому, что такое благодать, — и тот вдруг чувствует тепло и понимает, что оно идёт изнутри.</p></li>
+      <li class="ep"><span class="ep-dot"></span><span class="ep-num">20</span><h4>Дверь в другую сторону</h4><p>Последняя литургия. Он обходит все иконы, прощается с братией и выходит из алтаря северными дверями. Ночью, стоя перед «Умилением» — той самой иконой из курского дома, — он видит, как расходятся стены. Навстречу идут двое: Богородица и его мать. Мать зовёт его так, как никогда не звала при жизни: «Серафим!»</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ГЕРОИ -->
+<section id="heroes">
+  <div class="heroes-banner bg-cover" style="background-image:linear-gradient(180deg,rgba(18,16,14,.3),rgba(18,16,14,.93)),url('fon_16x9/05_chast1_kursk.png');">
+    <div class="cap rv">
+      <p class="eyebrow">Герои</p>
+      <h2 class="title" style="margin-bottom:0">Двенадцать лиц и один медведь</h2>
+    </div>
+  </div>
+  <div class="wrap pad-y" style="padding-top:clamp(30px,4.5vw,64px)">
+    <div class="hcar rv" id="hcar">
+      <div class="hstage">
+        <div class="htrack" id="htrack">
+        <article class="hslide" role="group" aria-label="Серафим">
+          <div class="hpic"><img src="kartochki_geroev_3x4/11_serafim_70plus.png" alt="Серафим" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Кто держит историю</p>
+            <h3>Серафим</h3>
+            <p>Он смеялся. Это первое, что стирается в пересказах жития, и первое, что мы возвращаем. Не суровый подвижник, а человек, которому всё на свете любопытно и всех на свете жалко. Воюет он только с унынием.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Прохор, 7 лет">
+          <div class="hpic"><img src="kartochki_geroev_3x4/10_prohor_7_let.png" alt="Прохор, 7 лет" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Кто держит историю</p>
+            <h3>Прохор, 7 лет</h3>
+            <p>Тоненький, голубоглазый, вечно где-то в облаках. С него начинается фильм, и его глазами он заканчивается.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Агафья Фотиевна">
+          <div class="hpic"><img src="kartochki_geroev_3x4/12_agafya_mat.png" alt="Агафья Фотиевна" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Кто держит историю</p>
+            <h3>Агафья Фотиевна</h3>
+            <p>Мать. Вдова, которая доводит до конца мужнин обет и распекает бригадиров так, что те работают вдвое быстрее. Даёт себе волю ровно один раз — когда отпускает сына навсегда.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Николка Блаженный">
+          <div class="hpic"><img src="kartochki_geroev_3x4/15_nikolka_blazhennyi.png" alt="Николка Блаженный" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Кто держит историю</p>
+            <h3>Николка Блаженный</h3>
+            <p>Юродивый. Реденькая борода, драные лапти, тысяча прибауток и полное бесстрашие перед купцами. Смешит зал первые двадцать минут — и вставляет фразу, с которой начинается вся история.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Медведь">
+          <div class="hpic"><img src="fon_16x9/14_starec_i_medved.png" alt="Медведь" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Тот, ради кого придут дети</p>
+            <h3>Медведь</h3>
+            <p>Он не разговаривает и не думает по-человечески. Просто повадился на пасеку за мёдом, а потом стал приходить уже непонятно зачем. Пугает богомольцев, даёт себя гладить и уходит в чащу, когда его просят.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Старец Досифей">
+          <div class="hpic"><img src="kartochki_geroev_3x4/17_dosifey.png" alt="Старец Досифей" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Те, кто разворачивает судьбу</p>
+            <h3>Старец Досифей</h3>
+            <p>Киевский затворник. Появляется на пять минут, называет незнакомого парня по имени и отправляет его туда, где тот проживёт остаток жизни.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Отец Пахомий">
+          <div class="hpic"><img src="kartochki_geroev_3x4/18_pahomiy.png" alt="Отец Пахомий" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Те, кто разворачивает судьбу</p>
+            <h3>Отец Пахомий</h3>
+            <p>Настоятель Сарова и земляк. Хитрит с бумагами, лишь бы не отдавать любимого монаха в другой монастырь. Его смерть — та точка, после которой герой уходит в лес.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Фотинья">
+          <div class="hpic"><img src="kartochki_geroev_3x4/13_fotinya.png" alt="Фотинья" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Те, кто разворачивает судьбу</p>
+            <h3>Фотинья</h3>
+            <p>«Мадмуазель ФотИ». Жемчуга, французский учитель, мечта уехать и папенькино решение выдать её за нелюбимого. Герой больше никогда её не увидит — и будет вспоминать в лесу тридцать лет спустя.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Мефодий">
+          <div class="hpic"><img src="kartochki_geroev_3x4/19_mefodiy.png" alt="Мефодий" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Те, кто разворачивает судьбу</p>
+            <h3>Мефодий</h3>
+            <p>Друг с послушнических лет, будущий Марк-молчальник. Идёт тем же путём на полшага впереди и замолкает раньше. С ним герой в последний раз разговаривает по-настоящему.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Матушка Александра">
+          <div class="hpic"><img src="kartochki_geroev_3x4/20_matushka_aleksandra.png" alt="Матушка Александра" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Фон, без которого не читается время</p>
+            <h3>Матушка Александра</h3>
+            <p>Барыня, которая раздала имение и основала Дивеевскую обитель. Умирая, оставляет герою поручение — и он будет исполнять его сорок пять лет.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Отец Нифонт">
+          <div class="hpic"><img src="kartochki_geroev_3x4/21_nifont.png" alt="Отец Нифонт" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Фон, без которого не читается время</p>
+            <h3>Отец Нифонт</h3>
+            <p>Настоятель, которому не хватает злодейства даже на самую малость. Он просто хочет запирать ворота вовремя, а из-за паломников не выходит.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Икона Умиление">
+          <div class="hpic"><img src="kartochki_geroev_3x4/22_ikona_umilenie.png" alt="Икона Умиление" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Фон, без которого не читается время</p>
+            <h3>Икона «Умиление»</h3>
+            <p>Написана на холсте, дана матерью в дорогу. Проходит через весь фильм молча и оказывается в самом последнем кадре.</p>
+          </div>
+        </article>
+        <article class="hslide" role="group" aria-label="Красулины">
+          <div class="hpic"><img src="kartochki_geroev_3x4/23_razboyniki.png" alt="Красулины" loading="lazy"></div>
+          <div class="hinfo">
+            <p class="hrole">Фон, без которого не читается время</p>
+            <h3>Красулины</h3>
+            <p>Отец и двое сыновей из соседнего села. Приходят в лес за чужими деньгами, уходят убийцами — и получают прощение от того, кого убивали.</p>
+          </div>
+        </article>
+        </div>
+      </div>
+
+      <div class="hbar">
+        <button class="harrow" type="button" id="hprev" aria-label="Предыдущий герой">
+          <svg viewBox="0 0 24 24"><path d="M15.5 3.5L7 12l8.5 8.5 1.6-1.6L10.2 12l6.9-6.9z"/></svg>
+        </button>
+        <button class="harrow" type="button" id="hnext" aria-label="Следующий герой">
+          <svg viewBox="0 0 24 24"><path d="M8.5 3.5L17 12l-8.5 8.5-1.6-1.6L13.8 12 6.9 5.1z"/></svg>
+        </button>
+        <span class="hnum"><b id="hcur">01</b> / 13</span>
+        <span class="hprog"><i id="hprog"></i></span>
+      </div>
+
+      <div class="hthumbs" id="hthumbs">
+      <button class="hthumb on" type="button" data-go="0" aria-label="Серафим"><img src="kartochki_geroev_3x4/11_serafim_70plus.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="1" aria-label="Прохор, 7 лет"><img src="kartochki_geroev_3x4/10_prohor_7_let.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="2" aria-label="Агафья Фотиевна"><img src="kartochki_geroev_3x4/12_agafya_mat.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="3" aria-label="Николка Блаженный"><img src="kartochki_geroev_3x4/15_nikolka_blazhennyi.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="4" aria-label="Медведь"><img src="fon_16x9/14_starec_i_medved.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="5" aria-label="Старец Досифей"><img src="kartochki_geroev_3x4/17_dosifey.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="6" aria-label="Отец Пахомий"><img src="kartochki_geroev_3x4/18_pahomiy.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="7" aria-label="Фотинья"><img src="kartochki_geroev_3x4/13_fotinya.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="8" aria-label="Мефодий"><img src="kartochki_geroev_3x4/19_mefodiy.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="9" aria-label="Матушка Александра"><img src="kartochki_geroev_3x4/20_matushka_aleksandra.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="10" aria-label="Отец Нифонт"><img src="kartochki_geroev_3x4/21_nifont.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="11" aria-label="Икона Умиление"><img src="kartochki_geroev_3x4/22_ikona_umilenie.png" alt=""></button>
+      <button class="hthumb" type="button" data-go="12" aria-label="Красулины"><img src="kartochki_geroev_3x4/23_razboyniki.png" alt=""></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- МИР -->
+<section id="world">
+  <div class="wrap pad-y">
+    <p class="eyebrow rv">Мир фильма</p>
+    <h2 class="title rv" style="max-width:14ch">Шесть мест, между которыми проходит жизнь</h2>
+    <div class="world">
+      <article class="wcard rv"><div class="wimg-hold"><div class="wimg" style="background-image:url('mir_4x3/mir_01_kursk.png')"></div></div>
+        <div class="wtxt"><p class="loc">01 · Исток</p><h3>Курск, 1760-е</h3>
+        <p>Купеческий город, утонувший в цветущих садах. Между домами по пятнадцать саженей огородов, над липами кружат галки, посреди улицы растёт каменный храм. Тепло, тесно, обжито.</p></div></article>
+
+      <article class="wcard rv"><div class="wimg-hold"><div class="wimg" style="background-image:url('mir_4x3/mir_02_doroga.png')"></div></div>
+        <div class="wtxt"><p class="loc">02 · Переход</p><h3>Дорога</h3>
+        <p>Пол-России пешком и в обозе. Цветущий юг сменяется севером, где лес стоит стеной, деревни наполовину пусты после пугачёвщины, а на постоялых дворах не открывают окон, чтобы не упустить тепло.</p></div></article>
+
+      <article class="wcard rv"><div class="wimg-hold"><div class="wimg" style="background-image:url('mir_4x3/mir_03_sarov.png')"></div></div>
+        <div class="wtxt"><p class="loc">03 · Устав</p><h3>Саровская пустынь</h3>
+        <p>Монастырь на горе над Саровкой, под ним многоуровневые пещеры, выдолбленные в доломите. Всё общее: трапеза, одежда, работа. Утреня в пять, повечерие ближе к полуночи.</p></div></article>
+
+      <article class="wcard rv"><div class="wimg-hold"><div class="wimg" style="background-image:url('mir_4x3/mir_04_pustynka.png')"></div></div>
+        <div class="wtxt"><p class="loc">04 · Испытание</p><h3>Дальняя пустынка</h3>
+        <p>Пятистенная изба на холме, речка под откосом, родник, пасека, огород. Здесь проходит сорок минут экранного времени и вся внутренняя война фильма.</p></div></article>
+
+      <article class="wcard rv"><div class="wimg-hold"><div class="wimg" style="background-image:url('mir_4x3/mir_05_kamen.png')"></div></div>
+        <div class="wtxt"><p class="loc">05 · Предел</p><h3>Камень</h3>
+        <p>Гранитный валун с плоской вершиной в лесной чаще. Снега на нём нет, будто кто-то смёл его веником. Герой знал этот лес вдоль и поперёк — и никогда раньше этого камня не видел.</p></div></article>
+
+      <article class="wcard rv"><div class="wimg-hold"><div class="wimg" style="background-image:url('mir_4x3/mir_06_diveevo.png')"></div></div>
+        <div class="wtxt"><p class="loc">06 · Долг</p><h3>Дивеево</h3>
+        <p>Обитель, которую он опекает всю жизнь и куда после 1787 года не приедет ни разу. Она входит в фильм через сестёр, что идут к нему пешком за двенадцать вёрст.</p></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ВИЗУАЛ -->
+<section id="visual" style="background:var(--coal-2)">
+  <div class="wrap pad-y">
+    <p class="eyebrow rv">Визуальный язык</p>
+    <h2 class="title rv" style="max-width:16ch">Фактурная 3D-анимация</h2>
+    <div class="narrow rv">
+      <p>Прямой референс — «Царь царей» (Республика Корея, 2025): тёплый кинематографичный CG, где главную работу делает свет, а материалы остаются осязаемыми. Дерево пахнет деревом, снег скрипит, ткань тяжёлая. Никакого гладкого пластика.</p>
+      <p>Картинка живёт в трёх регистрах, и переключаем мы их только там, где меняется сам герой. Это не просто оформление, а задуманный драматургический ход.</p>
+    </div>
+
+    <div class="triptych rv">
+      <img src="fon_16x9/16_vizual_triptih_tri_registra.png" alt="Три регистра изображения">
+      <div class="triptych-labels">
+        <div><b>Мирское</b><span>тёплая плотная палитра</span></div>
+        <div><b>Монашеское</b><span>охра, серый, глухая зелень</span></div>
+        <div><b>Видения</b><span>золото и обратная перспектива</span></div>
+      </div>
+    </div>
+
+    <div class="narrow rv" style="margin-top:clamp(30px,4vw,54px)">
+      <p><strong>Звук.</strong> Знаменный распев и мужской хор — точечно, а не сплошным ковром. Голос самого героя ведёт виолончель: она вступает там, где он молчит, и уходит, когда он начинает говорить. Низкая, тёплая, с живым дыханием смычка, ближе к человеческому голосу, чем к оркестру. Всё остальное озвучивает сама натура: топор, вода, шаги по насту, пчёлы. В главе о молчальничестве тишина работает наравне с музыкой.</p>
+    </div>
+
+    <div class="swatches rv">
+      <div class="sw"><i style="background:#C9922B"></i><span><b>Сусальное золото</b>#C9922B</span></div>
+      <div class="sw"><i style="background:#800808"></i><span><b>Кровь</b>#800808</span></div>
+      <div class="sw"><i style="background:#4A6B3A"></i><span><b>Курская зелень</b>#4A6B3A</span></div>
+      <div class="sw"><i style="background:#1E3A5F"></i><span><b>Саровская синь</b>#1E3A5F</span></div>
+      <div class="sw"><i style="background:#EDE3CE"></i><span><b>Левкас</b>#EDE3CE</span></div>
+      <div class="sw"><i style="background:#1A1614"></i><span><b>Уголь</b>#1A1614</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- РЕФЕРЕНСЫ -->
+<section>
+  <div class="wrap pad-y">
+    <p class="eyebrow rv">Референсы</p>
+    <h2 class="title rv" style="max-width:16ch">На что это похоже</h2>
+    <div class="refs">
+      <article class="ref rv">
+        <div class="ref-img"><img src="referensy_16x9/ref_01_tsar_tsarey.png" alt="Царь царей, 2025"></div>
+        <span>Техника и свет</span><b>«Царь царей»</b>
+        <p>Республика Корея, 2025. Прямой референс: как рассказать древний сюжет средствами тёплого CG и не свалиться ни в мультик, ни в иллюстрацию к учебнику.</p>
+      </article>
+      <article class="ref rv">
+        <div class="ref-img"><img src="referensy_16x9/ref_02_taina_koko.png" alt="Тайна Коко"></div>
+        <span>Эмоция</span><b>«Тайна Коко»</b>
+        <p>Доказательство, что семейная анимация может всерьёз говорить о смерти и памяти — и собирать при этом залы по всему миру.</p>
+      </article>
+      <article class="ref rv">
+        <div class="ref-img"><img src="referensy_16x9/ref_03_drakon.png" alt="Как приручить дракона"></div>
+        <span>Природа и полёт</span><b>«Как приручить дракона»</b>
+        <p>Ориентир по пейзажу и по тому, как большое пространство само по себе становится чувством. Нам это нужно уже в первом кадре.</p>
+      </article>
+      <article class="ref rv">
+        <div class="ref-img"><img src="referensy_16x9/ref_04_andrey_rublev.png" alt="Андрей Рублёв"></div>
+        <span>Интонация</span><b>«Андрей Рублёв»</b>
+        <p>Смысловой, а не визуальный ориентир. Святость там показана через грязь, тяжёлую работу и сомнение — единственный честный способ.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- СЛОВА СОЗДАТЕЛЕЙ -->
+<section id="creators" class="bg-fixed scrim" style="background-image:url('fon_16x9/07_chast3_dver_palomniki.png');">
+  <div class="wrap pad-y">
+    <p class="eyebrow rv">Слова создателей</p>
+    <h2 class="title rv" style="max-width:16ch">Зачем мы это делаем</h2>
+
+    <div class="creators">
+      <article class="creator  rv">
+        <div class="cpic"><img src="sozdateli_3x4/01_tuzhilkin.jpg" alt="Павел Тужилкин" loading="lazy"></div>
+        <div class="cinfo">
+            <p class="cwho">Автор книги</p>
+            <h3>Павел Тужилкин</h3>
+            <p>«Пламенный» — роман-предположение. Я не брался за реконструкцию: в основе лежат сказания о преподобном и записи тех, кто знал его при жизни, а остальное — попытка понять, что чувствовал человек, проживший такую жизнь.</p>
+            <p>Мне было важно, чтобы Прохор Мошнин оставался в книге живым мальчиком, а не иконой с первой страницы. Чтобы он боялся, ошибался, влюблялся и смеялся. Святость, к которой он пришёл, стоит дороже, если видно, из чего она выросла.</p>
+            <p>Кино может сделать то, чего не может книга: показать этот путь глазами. Я рад, что за него взялись люди, которые читали не по диагонали.</p>
+        </div>
+      </article>
+
+      <article class="creator flip rv">
+        <div class="cpic"><img src="sozdateli_3x4/02_zaozerskiy.jpg" alt="Сергей Заозерский" loading="lazy"></div>
+        <div class="cinfo">
+            <p class="cwho">Создатель</p>
+            <h3>Сергей Заозерский</h3>
+            <p class="credo">«Стяжи дух мирен, и вокруг тебя спасутся тысячи.»</p>
+            <p>Я человек глубоко верующий. Для меня вера не просто традиция, а стержень жизни, определяющий каждый мой шаг. И, наверное, именно поэтому судьба свела меня с книгой Павла Тужилкина «Пламенный». Это было не случайное знакомство, а настоящий зов, тихий, но настойчивый.</p>
+            <p>Преподобный Серафим Саровский — мой небесный покровитель. Его путь стал для меня живым примером того, каким должен быть человек Божий: не просто верующим, а готовым до конца нести свой крест, подвергать себя испытаниям и совершать духовные подвиги во имя любви к Богу и людям.</p>
+            <p>Батюшка Серафим был избранным. Тем, через кого Сам Господь говорил с нами, грешными. Он основал Дивеево, подлинную жемчужину православной России, место, где и сегодня благодать небесная ощущается почти осязаемо. Этот человек молился за спасение Святой Руси, и эти молитвы, я верю, до сих пор хранят нашу землю.</p>
+            <p>У каждого человека есть своя миссия. Я убеждён, что мы приходим в этот мир не только для того, чтобы строить дома и растить сады, но и чтобы оставить после себя след в душах других людей. Создание фильма по роману «Пламенный» для меня именно такая миссия: возможность рассказать о жизни великого святого как можно большему числу людей, вдохновить их его примером, укрепить в вере и подарить надежду.</p>
+            <p>Это мой посильный вклад в проповедь Слова Божия. Моё служение — через искусство кино донести до сердец величие преподобного Серафима, чтобы его главный завет зазвучал для современного зрителя так же пронзительно и жизненно, как и два столетия назад. Чтобы его образ жил, вдохновлял и напоминал: святость доступна каждому, кто готов идти за Христом с открытым сердцем.</p>
+            <p>И пусть этот свет, зажжённый батюшкой Серафимом, не угаснет никогда.</p>
+        </div>
+      </article>
+
+      <article class="creator  rv">
+        <div class="cpic"><img src="sozdateli_3x4/03_kobrakova.jpg" alt="Светлана Кобракова" loading="lazy"></div>
+        <div class="cinfo">
+            <p class="cwho">Генеральный продюсер</p>
+            <h3>Светлана Кобракова</h3>
+            <p class="credo">«Добро, смирение и любовь не имеют срока давности.»</p>
+            <p>Пишу своё слово как продюсер, стоящий у истоков проекта, который, я глубоко убеждена, станет не просто культурным событием, но и подлинным духовным явлением. Мы задумываем создание анимационного, а затем и полнометражного игрового фильма — экранизации уникального романа-предположения Павла Владимировича Тужилкина «Пламенный», повествующего о житии великого русского святого, преподобного Серафима Саровского.</p>
+            <p>Анимационный фильм — это волшебный мост к детским сердцам. Он позволит нам, используя визуальную метафору, сказочность и глубокую символику, донести до самых юных зрителей красоту и глубину жития Серафима. Дети увидят в нём не просто святого с иконы, а доброго волшебника, мудрого друга, героя, который совершает подвиг не силой оружия, а силой любви.</p>
+            <p>Мне хочется, чтобы наши фильмы стали искрой, которая зажжёт в сердцах детей и взрослых — по всей России, в Европе и Америке, в ныне живущих и во всех будущих поколениях — жажду познания, стремление к истине, желание быть лучше, добрее и человечнее.</p>
+            <p>Я верю, что язык кино — самый мощный и доступный язык для трансляции идей и ценностей. И если мы сможем рассказать историю преподобного Серафима так, чтобы она отозвалась в душах миллионов, мы подарим миру нечто бесценное: свидетельство того, что добро, смирение и любовь не имеют срока давности и способны преображать сердца человеческие в любые времена.</p>
+        </div>
+      </article>
+
+      <article class="creator flip rv">
+        <div class="cpic"><img src="sozdateli_3x4/04_kachurin.jpg" alt="Дмитрий Качурин" loading="lazy"></div>
+        <div class="cinfo">
+            <p class="cwho">Режиссёр</p>
+            <h3>Дмитрий Качурин</h3>
+            <p class="credo">«Как могу я учить других, коли сам грешен и слаб?»</p>
+            <p>Меня в этой истории держит одна деталь. Мальчик падает с высоты собора, встаёт живым — и первое, что говорит: «Мам, я нечаянно. Я больше не буду». Он боится, что его отругают.</p>
+            <p>Из этого вырастает всё остальное. Человек, которого потом назовут великим святым, всю жизнь боялся оказаться недостаточно хорошим. Он уходил всё дальше — в монастырь, в лес, на камень, в молчание — не потому что презирал людей, а потому что не считал себя вправе кого-то учить, пока сам не разберётся.</p>
+            <p>А потом дверь открылась, и он сорок минут экранного времени говорит каждому вошедшему: радость моя.</p>
+            <p>Я хочу сделать анимационный фильм, который смотрится без единого знания о православии. Про мальчика, который хотел летать. Про мать, которая отпустила. Про человека, который семьдесят лет искал ответ на вопрос «зачем я живу» — и нашёл его не внутри себя, а в чужом лице напротив.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- КОМУ НУЖЕН -->
+<section class="bg-fixed scrim" style="background-image:url('fon_16x9/06_chast2_les_izba_zimoy.png');">
+  <div class="wrap pad-y">
+    <p class="eyebrow rv">Кому нужен этот фильм</p>
+    <h2 class="title rv" style="max-width:18ch">Зрителю. Платформе. Инвестору. Региону.</h2>
+    <div class="four rv">
+      <div><h3>Зрителю</h3><p>Семейное кино, рассчитанное как на детей, так и на взрослых. В фильме ведутся разговоры о жизни и смерти, но ребенок увидит в этом фильме доброе приключение, а взрослый — историю про то, как перестать доказывать миру, что ты чего-то стоишь.</p></div>
+      <div><h3>Платформе и прокату</h3><p>Ниша серьёзной авторской полнометражки для семейного зрителя в русской анимации почти пуста. Сказочные франшизы заняли всё поле, а место для фильма, который берёт фестивали и при этом собирает зал, так и стоит свободным. Фильм выйдет в международный прокат</p></div>
+      <div><h3>Инвестору</h3><p>Аудитория у материала есть до всякой рекламы: Серафим Саровский — один из двух самых почитаемых русских святых, к его мощам каждый год едут сотни тысяч человек. И у фильма есть жизнь после проката: образовательные показы, лицензирование, артбук, продолжение.</p></div>
+      <div><h3>Региону и институтам</h3><p>Курск, Саров, Дивеево, Арзамас, Муром, Киев. Фильм собирает карту, по которой люди и так ездят, и даёт этой карте лицо.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ПОТЕНЦИАЛ -->
+<section>
+  <div class="wrap pad-y">
+    <p class="eyebrow rv">Потенциал развития</p>
+    <h2 class="title rv" style="max-width:20ch">Из анимационного фильма растёт многим больше одного продукта</h2>
+    <div class="grid3">
+      <div class="item rv"><h4>Сериальная версия</h4><p>В романе пятнадцать глав. Структура раскладывается на восемь-десять серий по двадцать две минуты художественного сериала.</p></div>
+      <div class="item rv"><h4>Линейка житий</h4><p>«Пламенный» может открыть серию русских житий, снятых как большое авторское кино.</p></div>
+      <div class="item rv"><h4>Артбук и издание</h4><p>Иллюстрированный роман с кадрами, раскадровками и разработками персонажей.</p></div>
+      <div class="item rv"><h4>Образовательная программа</h4><p>Фильм плюс методические материалы. Учителю литературы и истории такого материала сейчас взять негде.</p></div>
+      <div class="item rv"><h4>Маршрут</h4><p>Курск — Саров — Дивеево существует как направление уже двести лет. Фильм даёт ему визуальный образ и приводит нового человека.</p></div>
+      <div class="item rv"><h4>Создание полнометражного художественного фильма</h4><p>Анимация даёт миру «Пламенного» лицо и находит ему зрителя. Дальше та же история может быть рассказана заново — живыми актёрами, крупными планами, дыханием в кадре. Первый фильм при этом остаётся не эскизом, а полноценной работой, на которую опирается вторая.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- СТРАТЕГИЯ ПРОИЗВОДСТВА -->
+<section id="strategy" class="bg-fixed scrim" style="background-image:url('fon_16x9/17_strategiya_dva_etapa.png');">
+  <div class="wrap pad-y">
+    <p class="eyebrow rv">Стратегия производства</p>
+    <h2 class="title rv" style="max-width:14ch">Два этапа</h2>
+    <p class="lead narrow rv">Мы предлагаем двухэтапную стратегию. Она создаёт прочный фундамент для всего проекта: сначала мир, потом люди в нём.</p>
+
+    <div class="stages">
+      <article class="stage rv">
+        <span class="stage-num">01</span>
+        <p class="stage-when">Ближайший этап</p>
+        <h3>Полнометражный анимационный фильм</h3>
+        <dl>
+          <dt>Цель</dt>
+          <dd>Сделать зрелищное и доступное всей семье кино, которое заложит основу визуального мира «Пламенного».</dd>
+          <dt>Преимущества</dt>
+          <dd>Анимация позволяет в полной мере показать чудеса и духовные видения, заложенные в книге, и при этом держать бюджет под контролем. Она даёт творческую свободу, которой в игровом кино почти никогда не хватает.</dd>
+        </dl>
+      </article>
+
+      <article class="stage rv">
+        <span class="stage-num">02</span>
+        <p class="stage-when">Следующий этап</p>
+        <h3>Полнометражный игровой художественный фильм</h3>
+        <dl>
+          <dt>Цель</dt>
+          <dd>Опираясь на успех анимационной картины и накопленный опыт, снять глубокое камерное психологическое кино.</dd>
+          <dt>Преимущества</dt>
+          <dd>Здесь раскроется человеческая сторона истории: живые актёры, крупные планы, дыхание в кадре — всё то, что делает кино осязаемым.</dd>
+        </dl>
+      </article>
+    </div>
+
+    <p class="block-label rv">Дополнительные шаги</p>
+    <div class="grid3">
+      <div class="item rv"><h4>Допечатка тиража книги</h4><p>Дополнительный тираж выходит не вслед за фильмом, а вместе с ним. Книга становится самостоятельным событием и приводит к проекту тех, кто читает раньше, чем смотрит.</p></div>
+      <div class="item rv"><h4>Работа с духовными наставниками</h4><p>Мы открыты к сотрудничеству с духовенством, чтобы сохранить чистоту и глубину замысла. Материал требует точности, которую нельзя добыть одним чтением источников.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ИНВЕСТОРАМ -->
+<section class="cta bg-fixed" id="invest" style="background-image:linear-gradient(90deg,rgba(18,16,14,.95) 0%,rgba(18,16,14,.7) 50%,rgba(18,16,14,.3) 100%),url('fon_16x9/07_chast3_dver_palomniki.png');">
+  <div class="wrap pad-y">
+    <div class="rv" style="max-width:720px">
+      <p class="eyebrow">Инвесторам и партнёрам</p>
+      <h2>Станьте частью «Пламенного»</h2>
+      <p class="lead">Проект в разработке. Мы открыты к соинвестированию, копродукции и партнёрству — от участия в производстве до поддержки отдельных направлений: музыки, дистрибуции, издательской и образовательной программы.</p>
+      <div class="stats">
+        <div><b>90'</b><span>хронометраж</span></div>
+        <div><b>3D</b><span>полнометражная анимация</span></div>
+        <div><b>20</b><span>сцен в плане</span></div>
+        <div><b>6+</b><span>семейный просмотр</span></div>
+      </div>
+      <div class="btns">
+        <a class="btn" href="https://t.me/BlackCobraPro">Обсудить участие</a>
+        <a class="btn ghost" href="mailto:black.cobra.kino@gmail.com?subject=%D0%9F%D0%BB%D0%B0%D0%BC%D0%B5%D0%BD%D0%BD%D1%8B%D0%B9%20%E2%80%94%20%D1%83%D1%87%D0%B0%D1%81%D1%82%D0%B8%D0%B5%20%D0%B2%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5">Написать на почту</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <h3>Контакты</h3>
+      <p class="note">Отвечаем в тот же день.</p>
+      <small><a href="mailto:black.cobra.kino@gmail.com">black.cobra.kino@gmail.com</a></small>
+      <small><a href="tel:+79254231542">+7 (925) 423-15-42</a></small>
+      <small><a href="tel:+79153553747">+7 (915) 355-37-47</a><em>Сергей Заозерский</em></small>
+      <small><a href="https://t.me/BlackCobraPro">telegram · @BlackCobraPro</a></small>
+    </div>
+    <div class="foot-right">
+      <img class="foot-logo" src="https://kod-chempiona.ru/images/black-cobra-logo.png" alt="Black Cobra Production">
+      <small style="margin-top:12px">Black Cobra Production</small>
+      <small>«Пламенный» · по роману П. В. Тужилкина</small>
+    </div>
+  </div>
+</footer>
+
+<button class="sound-cue" id="cue" type="button"><i></i>Включите звук — роман зазвучит</button>
+
+<div class="player" id="player">
+  <button class="pbtn" id="play" type="button" aria-label="Слушать аудиокнигу">
+    <svg id="icoPlay" viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg>
+    <svg id="icoPause" viewBox="0 0 24 24" style="display:none"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+  </button>
+  <div class="ptitle"><b>Аудиокнига</b><span>«Пламенный» · часть первая</span></div>
+  <div class="pseek">
+    <span class="ptime" id="tCur">0:00</span>
+    <input type="range" id="seek" min="0" max="1000" value="0" step="1" aria-label="Позиция воспроизведения">
+    <span class="ptime" id="tDur">—:—</span>
+  </div>
+  <div class="pvol">
+    <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/></svg>
+    <input type="range" id="vol" min="0" max="100" value="70" aria-label="Громкость">
+  </div>
+</div>
+
+<audio id="audio" preload="metadata">
+  <source src="audio/plamennyy-chast-1.mp3" type="audio/mpeg">
+  <source src="audio/plamennyy-chast-1.m4a" type="audio/mp4">
+</audio>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nav = document.getElementById('nav');
+  var burn = document.getElementById('wickBurn');
+  var flame = document.getElementById('wickFlame');
+  var cue = document.getElementById('cue');
+
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? Math.min(y / h, 1) : 0;
+    nav.classList.toggle('solid', y > 80);
+    if(burn){
+      burn.style.height = (p * 100) + '%';
+      flame.style.top = (p * 100) + '%';
+      flame.style.opacity = p > 0.004 ? 1 : 0;
+    }
+    if(y > window.innerHeight * 2.4) cue.classList.add('hide');
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+
+  var burger = document.getElementById('burger');
+  var overlay = document.getElementById('menuOverlay');
+  function closeMenu(){ document.body.classList.remove('menu','locked'); }
+  burger.addEventListener('click', function(){
+    document.body.classList.toggle('menu');
+    document.body.classList.toggle('locked', document.body.classList.contains('menu'));
+  });
+  overlay.addEventListener('click', function(e){ if(e.target.tagName === 'A') closeMenu(); });
+
+  /* ---------- типографика: убираем висячие предлоги ---------- */
+  (function(){
+    var NB = '\u00A0';
+    /* Короткие слова, которые нельзя оставлять в конце строки. */
+    var SHORT = /(^|[\s(«"'\u2014\u2013])([а-яёa-z]{1,2}|для|над|под|при|про|без|близ|из-за|из-под|что|чем|как|это|уже|ещё|или|либо|даже|лишь|весь|вся|всё|все|его|её|их|наш|мой|тот|та|те|то)\s+/gi;
+
+    function fix(s){
+      /* 1. предлоги и союзы прилипают к следующему слову */
+      for(var i = 0; i < 3; i++) s = s.replace(SHORT, '$1$2' + NB);
+      /* 2. тире не начинает строку — уходит на предыдущую */
+      s = s.replace(/\s+([\u2014\u2013])\s/g, NB + '$1 ');
+      /* 3. инициалы и сокращения не разъезжаются */
+      s = s.replace(/([А-ЯЁ]\.)\s+([А-ЯЁ]\.)\s+/g, '$1' + NB + '$2' + NB);
+      s = s.replace(/\b(г|гг|в|вв|стр|им|ул)\.\s+/g, '$1.' + NB);
+      /* 4. число и то, что за ним, живут вместе */
+      s = s.replace(/(\d)\s+([а-яёa-z%°]{1,12})(?=[\s.,;:!?)»]|$)/gi, '$1' + NB + '$2');
+      return s;
+    }
+
+    var SKIP = {SCRIPT:1, STYLE:1, CODE:1, PRE:1, TEXTAREA:1};
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(n){
+        if(!n.nodeValue || !/\S/.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
+        var el = n.parentElement;
+        while(el && el !== document.body){
+          if(SKIP[el.tagName]) return NodeFilter.FILTER_REJECT;
+          /* моноширинные подписи и так короткие, их не трогаем */
+          if(el.classList && (el.classList.contains('eyebrow') ||
+             el.classList.contains('hrole') || el.classList.contains('cwho') ||
+             el.classList.contains('loc') || el.classList.contains('hnum'))) return NodeFilter.FILTER_REJECT;
+          el = el.parentElement;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    var nodes = [], n;
+    while((n = walker.nextNode())) nodes.push(n);
+    nodes.forEach(function(node){
+      var out = fix(node.nodeValue);
+      if(out !== node.nodeValue) node.nodeValue = out;
+    });
+  })();
+
+  /* ---------- карусели (герои и создатели) ---------- */
+  function initCarousel(o){
+    var car = document.getElementById(o.car);
+    if(!car) return;
+    var track = document.getElementById(o.track);
+    var total = track.children.length;
+    var thumbs = [].slice.call(document.querySelectorAll('#' + o.thumbs + ' .hthumb'));
+    var curEl = document.getElementById(o.cur);
+    var progEl = document.getElementById(o.prog);
+    var box = o.box ? document.getElementById(o.box) : null;
+    var i = 0, raf = null, t0 = 0, playing = false;
+    var DUR = o.dur;
+    var AUTO = o.dur > 0;          /* dur:0 — листает только человек */
+    if(!AUTO && progEl) progEl.style.display = 'none';
+
+    function fitHeight(){
+      if(!box) return;
+      var slide = track.children[i];
+      if(slide) box.style.height = slide.offsetHeight + 'px';
+    }
+    function render(){
+      track.style.transform = 'translate3d(' + (-i * 100) + '%,0,0)';
+      curEl.textContent = String(i + 1).padStart(2, '0');
+      thumbs.forEach(function(t, n){ t.classList.toggle('on', n === i); });
+      var t = thumbs[i];
+      if(t){
+        var strip = t.parentNode;
+        if(strip.scrollWidth > strip.clientWidth){
+          strip.scrollTo({left: t.offsetLeft - strip.clientWidth / 2 + t.clientWidth / 2,
+            behavior: reduce ? 'auto' : 'smooth'});
+        }
+      }
+      fitHeight();
+    }
+    function go(n){ i = (n + total) % total; render(); restart(); }
+
+    function tick(ts){
+      if(!t0) t0 = ts;
+      var pr = Math.min((ts - t0) / DUR, 1);
+      progEl.style.width = (pr * 100) + '%';
+      if(pr >= 1){ t0 = 0; i = (i + 1) % total; render(); }
+      raf = requestAnimationFrame(tick);
+    }
+    function start(){ if(!AUTO || reduce || raf) return; t0 = 0; raf = requestAnimationFrame(tick); }
+    function stop(){ if(raf){ cancelAnimationFrame(raf); raf = null; } if(progEl) progEl.style.width = '0%'; }
+    function restart(){ stop(); if(playing) start(); }
+
+    new IntersectionObserver(function(en){
+      en.forEach(function(e){ playing = e.isIntersecting; if(playing){ start(); } else { stop(); } });
+    }, {threshold:0.25}).observe(car);
+
+    document.getElementById(o.prev).addEventListener('click', function(){ go(i - 1); });
+    document.getElementById(o.next).addEventListener('click', function(){ go(i + 1); });
+    thumbs.forEach(function(t){
+      t.addEventListener('click', function(){ go(parseInt(t.dataset.go, 10)); });
+    });
+    car.addEventListener('mouseenter', function(){ stop(); });
+    car.addEventListener('mouseleave', function(){ restart(); });
+
+    var x0 = null, y0 = null, locked = false;
+    car.addEventListener('touchstart', function(e){
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; locked = false; stop();
+    }, {passive:true});
+    car.addEventListener('touchmove', function(e){
+      if(x0 === null || locked) return;
+      var dx = e.touches[0].clientX - x0, dy = e.touches[0].clientY - y0;
+      if(Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)){
+        locked = true; go(dx < 0 ? i + 1 : i - 1); x0 = null;
+      }
+    }, {passive:true});
+    car.addEventListener('touchend', function(){ x0 = null; restart(); }, {passive:true});
+
+    car.setAttribute('tabindex', '0');
+    car.addEventListener('keydown', function(e){
+      if(e.key === 'ArrowLeft') go(i - 1);
+      if(e.key === 'ArrowRight') go(i + 1);
+    });
+
+    window.addEventListener('resize', fitHeight);
+    window.addEventListener('load', fitHeight);
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitHeight);
+    render();
+  }
+
+  initCarousel({car:'hcar', track:'htrack', thumbs:'hthumbs', cur:'hcur',
+    prog:'hprog', prev:'hprev', next:'hnext', dur:13000});
+
+  var io = new IntersectionObserver(function(en){
+    en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.1, rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('.rv').forEach(function(el, i){
+    el.style.transitionDelay = (Math.min(i % 4, 3) * 80) + 'ms';
+    io.observe(el);
+  });
+
+  var ioEp = new IntersectionObserver(function(en){
+    en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('lit'); ioEp.unobserve(e.target); } });
+  }, {threshold:0.45});
+  document.querySelectorAll('.ep').forEach(function(el){ ioEp.observe(el); });
+
+  var audio = document.getElementById('audio');
+  var player = document.getElementById('player');
+  var playBtn = document.getElementById('play');
+  var icoPlay = document.getElementById('icoPlay');
+  var icoPause = document.getElementById('icoPause');
+  var seek = document.getElementById('seek');
+  var vol = document.getElementById('vol');
+  var tCur = document.getElementById('tCur');
+  var tDur = document.getElementById('tDur');
+  var seeking = false;
+
+  audio.volume = 0.7;
+  setTimeout(function(){ player.classList.add('up'); }, 900);
+  onScroll();
+
+  function fmt(s){
+    if(!isFinite(s)) return '—:—';
+    var m = Math.floor(s/60), r = Math.floor(s%60);
+    if(m >= 60){ var hh = Math.floor(m/60); m = m%60;
+      return hh + ':' + String(m).padStart(2,'0') + ':' + String(r).padStart(2,'0'); }
+    return m + ':' + String(r).padStart(2,'0');
+  }
+  function setIcons(p){ icoPlay.style.display = p ? 'none':'block'; icoPause.style.display = p ? 'block':'none'; }
+  function toggle(){ if(audio.paused){ audio.play().catch(function(){}); } else { audio.pause(); } }
+
+  playBtn.addEventListener('click', toggle);
+  cue.addEventListener('click', function(){ toggle(); cue.classList.add('hide'); });
+  audio.addEventListener('play', function(){ setIcons(true); cue.classList.add('hide'); });
+  audio.addEventListener('pause', function(){ setIcons(false); });
+  audio.addEventListener('loadedmetadata', function(){ tDur.textContent = fmt(audio.duration); });
+  audio.addEventListener('timeupdate', function(){
+    if(seeking || !isFinite(audio.duration)) return;
+    seek.value = Math.round((audio.currentTime/audio.duration)*1000);
+    tCur.textContent = fmt(audio.currentTime);
+  });
+  audio.addEventListener('error', function(){
+    cue.classList.add('hide');
+    document.querySelector('.ptitle span').textContent = 'Файл не загружен — положите его в папку /audio';
+  });
+  seek.addEventListener('input', function(){ seeking = true; });
+  seek.addEventListener('change', function(){
+    if(isFinite(audio.duration)) audio.currentTime = (seek.value/1000)*audio.duration;
+    seeking = false;
+  });
+  vol.addEventListener('input', function(){ audio.volume = vol.value/100; });
+
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(ev){
+      var id = a.getAttribute('href');
+      if(id.length < 2) return;
+      var t = document.querySelector(id);
+      if(!t) return;
+      ev.preventDefault();
+      closeMenu();
+      var off = window.innerWidth < 820 ? 50 : 58;
+      window.scrollTo({top: t.getBoundingClientRect().top + window.scrollY - off, behavior: reduce ? 'auto':'smooth'});
+    });
+  });
+})();
+</script>
+</body>
+</html>
